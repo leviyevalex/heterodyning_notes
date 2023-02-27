@@ -1,0 +1,216 @@
+% !TeX TXS-program:compile = txs:///pdflatex/[--shell-escape]
+\documentclass[10]{article}
+\usepackage{arxiv}
+% \usepackage{neurips_2022}
+\usepackage{delimset, diffcoeff, interval}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue, citecolor=blue]{hyperref}
+\usepackage{amsmath, amsthm, amsfonts, mathtools, nicematrix, bm, cancel, siunitx, tensor}
+\usepackage[ruled,vlined, algo2e]{algorithm2e}
+\SetKwComment{Comment}{$\triangleright$\ }{}
+\SetKwInput{kwInit}{Init}
+\usepackage{graphicx, booktabs, accents, enumerate}
+\usepackage{import, float, pdfpages, transparent, xcolor}
+\usepackage[hang]{footmisc} % to make footnotes align
+\usepackage[capitalise]{cleveref}
+\usepackage{authblk}
+\usepackage{printlen} % to get text widths and such for figures
+\usepackage{mwe} % for example images
+\usepackage{graphbox}
+\usepackage{subcaption}
+\usepackage{tikz, pgfplots}
+\usetikzlibrary{positioning}
+% \usepackage{pythontex} % for python code
+% \usepackage{minted}
+% \setminted[python]{breaklines, framesep=2mm, fontsize=\footnotesize, numbersep=5pt}
+
+\bibliographystyle{apalike}
+
+% Define theorem styles here based on the definition style (used for definitions and examples)
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{claim}{Claim}
+\newtheorem{question}{Question}
+\newtheorem{implementation}{Implementation}
+% Define theorem styles here based on the plain style (used for theorems, lemmas, propositions)
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+% Define theorem styles here based on the remark style (used for remarks and notes)
+\theoremstyle{remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem*{notation}{Notation}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{solution}{Solution}
+
+% config
+\intervalconfig{soft  open  fences ,separator  symbol=;,}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}} % so we can tag the final equation in a list of aligns
+\newcommand{\bfz}{\bm{z}}
+\newcommand{\bfeta}{\bm{\eta}}
+\newcommand{\man}{\mathcal{M}}
+\newcommand{\dkl}{\mathcal{D}_{\mathrm{KL}}} % KL divergence
+\newcommand{\defn}{\coloneqq} %defined as
+\newcommand{\defb}{\eqqcolon}
+\newcommand{\wass}{\mathcal{P}_2(\reals^d)}
+\newcommand{\vgf}{v^{\text{GF}}} % gradient flow velocity
+\newcommand{\vn}{v^{\text{N}}} % newton velocity
+\newcommand{\vwnf}{v^{\text{WNF}}} % newton velocity
+\newcommand{\reals}{\mathbb{R}} %space of reals
+\newcommand{\com}{\mathbb{C}} %space of complexs
+\newcommand{\torus}{\mathbb{T}}
+\newcommand{\sphere}{\mathbb{S}}
+\newcommand{\natrl}{\mathbb{N}} %space of natural numbers
+\newcommand{\dfl}[1]{\: d #1} % differential
+\newcommand{\ensd}[1]{\{x_{#1}\}_{#1 = 1}^{N}} % ensemble descriptive
+\newcommand{\ens}[1]{\{x_{#1}\}} % ensemble descriptive
+\newcommand{\trho}{\tilde{\rho}}
+\newcommand{\lap}{\Delta} %laplacian
+\newcommand{\eps}{\epsilon}
+\newcommand{\Iddd}{I_{d \times d}}
+\newcommand{\Indnd}{I_{Nd \times Nd}}
+\newcommand{\gauss}{\mathcal{N}} % Normal
+\newcommand{\hmed}{h_{\text{med}}} % median bandwidth
+\newcommand{\tspace}{T_{\rho} \mathcal{M}}
+\newcommand{\rkhsd}{\mathcal{H}^d}
+\newcommand{\rkhs}{\mathcal{H}}
+\newcommand{\HK}{\mathcal{H}_\mathcal{K}} % Matrix valued kernel RKHS
+\newcommand{\vsvgd}{v^{\text{SVGD}}}
+\newcommand{\vgfsd}{v^{\text{GFSD}}}
+\newcommand{\vkde}{v^{\text{KDE}}}
+\newcommand{\vlrho}{\mathcal{L}_{\rho}^2} % square integrable vector fields
+\newcommand{\flrho}{L_{\rho}^2} %square integrable functions
+\newcommand{\lrhot}{\mathcal{L}_{\tilde{\rho}}^2}
+\newcommand{\embed}{T_{\rho, k}}
+\newcommand{\wt}{\tilde{w}} % for rkhs embedding of w
+\newcommand{\ab}{\bar{alpha}}
+\newcommand{\Hb}{\bar{H}}
+\newcommand{\vbsvgd}{\bar{v}^{\text{SVGD}}}
+\newcommand{\vbsvn}{\bar{v}^{\text{SVN}}}
+\newcommand{\vsvn}{v^{\text{SVN}}}
+\newcommand{\vmsvgd}{v^{\text{SVGD}}_{\psi}}
+\newcommand{\vmsvn}{v^{\text{SVN}}_{\psi}}
+\newcommand{\setp}[2]{\{{#1}_{#2}\}_{{#2}=1}^{N}}
+\newcommand{\dsvn}{D^{\text{SVN}}}
+\newcommand{\dbsvn}{\bar{D}^{\text{SVN}}}
+\newcommand{\like}{\mathcal{L}}
+\newcommand{\order}{\mathcal{O}}
+\newcommand{\Kern}{\mathcal{K}} % matrix kernel
+\newcommand{\vdet}{v^{\textrm{DET}}}
+%\newcommand{\vdet}{v^{\textrm{DET}}}
+\newcommand{\vstc}{v^{\text{STC}}}
+\newcommand{\realsnd}{\reals^{Nd}}
+\newcommand{\realsndnd}{\reals^{Nd \times Nd}}
+\newcommand{\realsd}{\reals^{d}}
+\newcommand{\kgram}{\bar{k}}
+\newcommand{\wnfhess}{\tilde{H}}
+\newcommand{\loglike}{\ln{\mathcal{L}}}
+\newcommand{\re}{\mathfrak{Re}}
+\newcommand{\logit}{\mathrm{logit}}
+\newcommand{\hyperc}{\mathbb{H}}
+\newcommand{\variate}{\diff{}{\eps} \bigg|_{\eps=0}}
+\newcommand{\fmin}{f_{\text{min}}}
+\newcommand{\fmax}{f_{\text{max}}}
+
+% For author comments:
+\newcommand{\alex}[1]{\textcolor{violet}{#1}}
+
+% For comments in align envorinment
+
+\newcommand{\pushright}[1]{\tag*{\llap{#1}}} % differential
+
+
+% Testing figure commands
+\newcommand{\showfontsize}{\f@size{} pt}
+
+\newcommand{\ibar}{%
+  \text{\ooalign{\hidewidth -\kern-.1em-\hidewidth\cr$i$\cr}}%
+}
+
+% \newcommand{\dsvn}{\text{D}}
+
+
+% \newcommand{\lrhot}{\mathcal{L}_{\rho}^2} % square integrable vector fields
+\newcommand{\rhot}{\tilde{\rho}}
+\newcommand{\eql}[1]{\stackrel{#1}{=}} % to put symbols over the = sign to explain things
+% \newcommand{\vn}{v^{\text{N}}}
+% \newcommand{\vgf}{v^{\text{GF}}}
+\DeclareMathOperator{\Law}{Law}
+% \DeclareMathOperator{\min}{min}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\id}{id} % identity map
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\chol}{Chol}
+\DeclareMathOperator{\kry}{Krylov}
+\DeclareMathOperator{\med}{med}
+\DeclareMathOperator*{\expv}{\mathbb{E}} % Expected value. Note that the * makes the underscores go UNDERNEATH
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\unif}{Unif}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\sech}{sech}
+% \DeclareMathOperator{\det}{det}
+
+% To italicizse and bold rows in a table
+\newcolumntype{+}{>{\global\let\currentrowstyle\relax}}
+\newcolumntype{^}{>{\currentrowstyle}}
+\newcommand{\rowstyle}[1]{\gdef\currentrowstyle{#1}%
+#1\ignorespaces
+}
+
+%%% https://tex.stackexchange.com/questions/330075/how-to-change-numbers-to-roman-numerals-in-align-environment
+\newtagform{roman}[\renewcommand{\theequation}{\roman{equation}}]()
+
+\usepackage[normalem]{ulem}
+\newcommand{\aaron}[1]{\textcolor{purple}{#1}}
+
+\allowdisplaybreaks
+\begin{document}
+
+% \title{Binary black hole parameter estimation with Stein variational inference}
+\title{Notes on likelihood heterodyning}
+
+\author[1]{Alex Leviyev}
+% \author[2]{Joshua Chen}
+% \author[3]{Yifei Wang}
+% \author[4]{Francesco Iacovelli}
+% \author[4]{Michele Mancarella}
+% \author[2]{Omar Ghattas}
+% \author[3]{Qiang Liu}
+\author[1]{Aaron Zimmerman}
+\affil[1]{Center for Gravitational Physics, University of Texas at Austin}
+% \affil[2]{Oden Institute, University of Texas at Austin}
+% \affil[3]{Department of Electrical Engineering, Stanford University}
+% \affil[3]{Department of Computer Science, University of Texas at Austin}
+% \affil[4]{D\'{e}partement de Physique Th\'{e}orique and Gravitational Wave Science Center, Universit\'{e} de Gen\`{e}ve}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+This is a set of notes which explores in more detail the strategy of reducing the computational cost of evaluating the gravitational wave likelihood with a strategy known as heterodyning.
+Our aim is to provide concrete results and algorithms to supplement the ideas presented in the original paper.
+
+% is an interacting particle MCMC method whose proposals correspond to quasi-Newton optimization over constrained spaces,
+
+
+% Since their original detection in 2016, gravitational waves have provided an unprecedented method to study neutron stars, black holes, and strong field gravity.
+% As such detections become routine, it is imperative that signals be processed in a timely manner without undue computational burden.
+% In this paper, we investigate the benefits of incorporating second order information into the parameter estimation process.
+% Specifically, the standard Gaussian noise model used for gravitational wave parameter estimations allows one to use a computationally inexpensive, positive-definite surrogate to the Hessian of the log-likelihood (the Fisher-information) to perform quasi-Newton descent.
+% We demonstrate that using an algorithm known as Stein variational Newton (SVN) as implemented in \texttt{sSVN}\footnote{\url{https://github.com/leviyevalex/sSVN}} reduces (t.b.d) the number of waveform evaluations for a binary black hole merger (GW170817) by two orders of magnitude compared to the state of the art \texttt{Dynesty}\footnote{\url{https://github.com/joshspeagle/dynesty}} library.
+% The \texttt{gwfast}\footnote{\url{https://github.com/CosmoStatGW/gwfast}} library is used to construct a detector network likelihood in pure Python, which then allows for fast and accurate algorithmic differentiation of the likelihood via \texttt{JAX}\footnote{\url{https://github.com/google/jax}}.
+\end{abstract}
+\input{notes}
+% \input{1-intro}
+% \input{2-background}
+% \input{3-contributions}
+% \input{4-numerics}
+% \input{5-conclusion}
+
+\appendix
+\bibliographystyle{amsplain}
+\bibliography{references.bib}
+
+% \input{app}
+\end{document}

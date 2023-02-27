@@ -1,0 +1,213 @@
+%!TEX root = main.tex
+
+\section{Relative binning}
+\subsection{Motivation}
+In GW data analysis, we work with a complex inner product space $(\com^n, \brk[a]{\cdot,\cdot}_{\text{GW}})$, where for $h,g \in \com^n$, $\brk[a]{\cdot,\cdot}_{\text{GW}}:\com^n \times \com^n \to \com$ is a sesquilinear inner product defined by:
+\begin{equation}\label{}
+\brk[a]{h,g}_{\text{GW}} \defn 4 \sum_{i=1}^n \frac{\tilde{h}(f_i)^* \tilde{g}(f_i)}{S(f_i)} \Delta f,
+\end{equation}
+where $\Delta f = 1/T$, where $T$ is the duration of the signal, $\tilde{h} \defn \text{DFT}(h)$, and $S(f)$ is a function which weighs each contribution to the sum (called the \textit{power spectral density.})
+Recall that a sesquilinear inner product satisfies the following three axioms:
+\begin{itemize}
+  \item $\brk[a]{f,g} = \brk[a]{g,f}^*,$ \hfill{(conjugate symmetry)}
+  \item $\brk[a]{f, g + \alpha h} = \brk[a]{f,g} + \alpha \brk[a]{f,h}$, \hfill{(linearity in second argument)}
+  \item $\brk[a]{h,h} \ge 0$ and $\brk[a]{h,h} = 0 \iff h = 0_{\com^n}$. \hfill{(postive definiteness)}
+\end{itemize}
+\begin{remark}[]\label{}
+In physics it is typical to require linearity in the second argument. Hence we suggest sticking to this convention.
+\end{remark}
+The likelihood is defined in terms of the inner product by
+\begin{equation}\label{}
+\like(\theta) \defn e^{-\frac{1}{2} \brk[a]1{h(\cdot ; \theta) - d(\cdot),h(\cdot ; \theta) - d(\cdot)}_{\text{GW}}},
+\end{equation}
+where $d \in \com^n$ is the detector strain, and $h$ is a waveform model parameterized by $\theta$ (e.g, IMRPhenomD). Using the linearity and conjugate symmetry of the inner product, we may show that
+\begin{align*}\label{}
+-\ln \like (\theta) &= \frac{1}{2}\brk[a]1{h(\theta) - d,h(\theta) - d}_{\text{GW}} \\
+&= \frac{1}{2}\overbrace{\brk[a]{h(\theta), h(\theta)}_{\text{GW}}}^{(a)} - \re \overbrace{\brk[a]{h(\theta), d}_{\text{GW}}}^{(b)} + \frac{1}{2}\overbrace{\brk[a]{d, d}_{\text{GW}}}^{\text(c)}.
+\end{align*}
+Hence, for every $\like(\theta)$ evaluation, we must evaluate $(a)$ and $(b)$, which require $\order(n)$ evaluations of the waveform.
+Note that $(c)$ can be precomputed once and stored.
+Relative binning aims to reduce the number of evaluations to $\order(m)$, where $m \ll n$, providing significant computational advantage.
+
+\subsection{Derivatives and Fisher matrix}
+We may also investigate whether whether heterodyning produces accurate gradient and Fisher matrix evaluations.
+The expressions for this are given by
+\begin{align*}
+- \ln \like_{,i}(\theta) &= \re \brk[a]{h_{,i}(\cdot, \theta), h(\cdot, \theta)} - \re \brk[a]{h_{,i}(\cdot, \theta),d(\cdot)} \pushright{\text{(heterodyne)}} \\
+&= \re \brk[a]{h_{,i}(\cdot, \theta), h(\cdot, \theta)-d(\cdot)}, \pushright{\text(standard)}
+\end{align*}
+and
+\begin{align*}
+- \ln \like_{,ij}(\theta) &= \re \brk[a]{h_{,ij}(\cdot, \theta), h(\cdot,\theta) - d(\cdot)} + \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)} \\
+&\approx  \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)}.
+\end{align*}
+
+
+\subsection{Heterodyning strategy}
+Heterodyning is a technique in signal processing which combines two high frequency signals to yield another signal with lower frequency.
+If this can be successfully accomplished, then we can use a coarser grid in evaluating the inner product with minimal error accumulation.
+Suppose that $\theta_0$ is a fiducial set of parameters, and that we are interested in a signal with support $[\fmin, \fmax]$. Then
+\begin{align*}
+r(f;\theta) &\defn \frac{h(f;\theta)}{h(f; \theta_0)} \\
+&= \frac{A}{A_0} e^{i \overbrace{\brk[r]1{\psi(f;\theta) - \psi(f;\theta_0)}}^{\defn \Psi(f;\theta)}}
+\end{align*}
+is successfully heterodyned if $\Psi(f;\theta)$ is a ``slowly varying" function with respect to $f$ for ``sufficiently many" $\theta \in \Theta$.
+$\Psi(f;\theta)$ is referred to as the \textit{differential phase}.
+
+If this condition holds, then one may efficiently compress the real and imaginary parts of $r$ with a \textit{linear spline}.
+% More complex version suggested in the paper
+% \begin{definition}[]\label{}
+% Let $r:[\fmin,\fmax] \to \reals$, and consider the cover $[\fmin, \fmax] = \cup_{i=1}^{m-1}[f_-^{(i)}, f_+^{(i)}) \cup [f_-^{(m)}, f^{(m)}_+]$, where $f_+^{(i)}=f_-^{(i+1)}$ for every $i \in \brk[c]{1, \ldots, m-1}$, with $f_-^{(1)}=\fmin$ and $ f_+^{(m)}=\fmax$. Then the \textit{linear spline approximation} of $r$ is given by
+% \begin{equation}\label{}
+% r(f; \theta) \approx r_0^{(b)}(\theta) + r_1^{(b)}(\theta)(f-\bar{f}^{(b)}), \; \; f \in \text{bin} \; b
+% \end{equation}
+% where
+% \begin{align*}
+% r_0^{(b)}(\theta) &= \frac{r(f_+^{(b)};\theta) + r(f_-^{(b)}; \theta)}{2}, &
+% r_1^{(b)}(\theta) &= \frac{r(f_+^{(b)};\theta) - r(f_-^{(b)}; \theta)}{f_+^{(b)} - f_-^{(b)}}, &
+% \bar{f}^{(b)} &\defn \frac{f^{(b)}_+ + f^{(b)}_-}{2}.
+% \end{align*}
+% \end{definition}
+% Simpler version proposed by me
+\begin{definition}[]\label{}
+Let $r:[\fmin,\fmax] \to \com$, and consider the cover $[\fmin, \fmax] = \cup_{i=1}^{m-1}[f_-^{(i)}, f_+^{(i)}) \cup [f_-^{(m)}, f^{(m)}_+]$, where $f_+^{(i)}=f_-^{(i+1)}$ for every $i \in \brk[c]{1, \ldots, m-1}$, with $f_-^{(1)}=\fmin$ and $ f_+^{(m)}=\fmax$. Then the \textit{linear spline approximation} of $r$ is given by
+\begin{equation}\label{}
+r(f; \theta) \approx r_0^{(b)}(\theta) + r_1^{(b)}(\theta)(f-f_-^{(b)}), \; \; f \in \text{bin} \; b
+\end{equation}
+where
+\begin{align*}
+r_0^{(b)}(\theta) &\defn r(f_-^{(b)};\theta) , &
+r_1^{(b)}(\theta) &\defn \frac{r(f_+^{(b)};\theta) - r(f_-^{(b)}; \theta)}{f_+^{(b)} - f_-^{(b)}}, &
+% \bar{f}^{(b)} &\defn \frac{f^{(b)}_+ + f^{(b)}_-}{2}.
+\end{align*}
+\end{definition}
+
+
+
+%
+\begin{proposition}[]\label{}
+Suppose $r(f;\theta)$ is successfully heterodyned with fiducial parameters $\theta_0$. Then
+\begin{align*}
+\brk[a]{h(\cdot, \theta), d(\cdot)} &\approx \sum_b \brk[s]1{A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*}, \\
+% \brk[a]{d(\cdot), h(\cdot, \theta)} &\approx \sum_b \brk[s]1{A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*}, \\
+\brk[a]{h(\cdot,\theta), h(\cdot,\theta)} &\approx \sum_b \brk[s]2{B_0^{(b)} \abs{r_0^{(b)}(\theta)}^2 + 2 B_1^{(b)} \re \brk[r]1{r_0^{(b)}(\theta)^* r_1^{(b)}(\theta)}},
+\end{align*}
+where
+\begin{align*}
+A_0^{(b)} &\defn 4 \sum_{i: f_i \in \text{bin} \; b} \frac{d(f_i) h(f_i;\theta_0)^*}{S(f_i)} \Delta f, & A_1^{(b)} &= 4 \sum_{i:f_i \in \text{bin} \; b} \frac{d(f_i) h(f_i;\theta_0)^*(f_i - f_-^{(b)})}{S(f_i)} \Delta f,
+\end{align*}
+%
+\begin{align*}
+B_0^{(b)} &\defn 4 \sum_{i:f_i \in \text{bin} \; b} \frac{\abs{h(f_i;\theta_0)}^2}{S(f_i)}\Delta f, & B_1^{(b)} &\defn 4 \sum_{i:f_i \in \text{bin} \: b} \frac{\abs{h(f_i;\theta_0)}^2(f_i-f_-^{(b)})}{S(f_i)}\Delta f.
+\end{align*}
+\end{proposition}
+\begin{proof}
+(i) We have
+\begin{align*}
+\brk[a]{h(\cdot, \theta), d(\cdot)} &\defn 4 \sum_{i=1}^n \frac{h(f_i;\theta)^* d(f_i) }{S(f_i)}\Delta f \\
+&= 4 \sum_{b} \sum_{i:f_i \in \text{bin} \; b} \frac{d(f_i) h(f_i;\theta_0)^* r(f_i;\theta)^*}{S(f_i)}\Delta f \\
+&\approx 4 \sum_{b} \sum_{i:f_i \in \text{bin} \; b} \frac{d(f_i) h(f_i;\theta_0)^*}{S(f_i)} \brk[s]!{r_0^{(b)}(\theta)^* + r_1^{(b)}(\theta)^*(f_i - f_-^{(b)})} \Delta f\\
+&= \sum_b \brk[s]!{A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*}.
+\end{align*}
+(ii) On the other hand, we have
+\begin{align*}
+\brk[a]{h(\cdot,\theta), h(\cdot,\theta)} &= 4 \sum_{i=1}^n \frac{\abs{h(f_i;\theta)}^2}{S(f_i)} \Delta f \\
+&= 4 \sum_{i=1}^n \frac{\abs{h(f_i;\theta_0)r(f_i;\theta) }^2}{S(f_i)}\Delta f \\
+&\approx 4 \sum_b \sum_{i:f_i \in \text{bin} \; b} \frac{\abs{h(f_i;\theta_0)}^2 \abs1{r_0^{(b)}(\theta) + r_1^{(b)}(\theta) (f_i-f_-^{(b)})}^2}{S(f_i)}\Delta f \\
+&= 4 \sum_b \sum_{i:f_i \in \text{bin} \; b}\frac{\abs{h(f_i;\theta_0)}^2 \brk[r]2{\abs{r_0^{(b)}(\theta)}^2 + \abs{r_1^{(b)}(\theta)(f-f_-^{(b)})}^2 + 2(f-f_-^{(b)}) \re \brk[r]1{r_0^{(b)}(\theta)^*r_1^{(b)}(\theta)}}}{S(f_i)}\Delta f \\
+&\approx \sum_b \brk[s]2{B_0^{(b)} \abs{r_0^{(b)}(\theta)}^2 + 2B_1^{(b)} \re \brk[r]1{r_0^{(b)}(\theta)^* r_1^{(b)}(\theta)}},
+\end{align*}
+where in the second to last line we've used the fact that for $z_1, z_2 \in \com$, $\abs{z_1+z_2}^2 = \abs{z_1}^2 + \abs{z_2}^2 + 2 \re \brk[r]{z_1^* z_2}$, and in the last line we've ignored terms of $\order(\abs{f-f_-^{(b)}}^2)$.
+\end{proof}
+
+\begin{proposition}[]\label{}
+The terms we need to calculate for the derivative and Fisher may be approximated as follows:
+\begin{align*}
+\brk[a]{h_{,j}(\theta),d} &\approx \sum_b \brk[s]!{A_0^{(b)} r_{0,j}^{(b)} (\theta)^* + A_1^{(b)} r_{1,j}^{(b)}(\theta)^*}, \\
+\brk[a]{h_{,j}(\theta), h(\theta)} &\approx \sum_b \brk[c]2{B_0^{(b)} r_{0,j}^{(b)}(\theta)^* r_0^{(b)}(\theta) + B_1^{(b)} \brk[s]!{r_{0,j}^{(b)}(\theta)^* r_1^{(b)}(\theta) + r_{1,j}^{(b)}(\theta)^* r_0^{(b)}(\theta)}}, \\
+\brk[a]{h_{,j}(\theta), h_{,k}(\theta)} &\approx \sum_b \brk[c]2{B_0^{(b)} r_{0,j}^{(b)}(\theta)^* r_{0,k}^{(b)}(\theta) + B_1^{(b)} \brk[s]!{r_{0,j}^{(b)}(\theta)^* r_{1,k}^{(b)}(\theta) + r_{1,j}^{(b)}(\theta)^* r_{0,k}^{(b)}(\theta)}}.
+\end{align*}
+\end{proposition}
+\begin{proof}
+
+\end{proof}
+
+
+\section{Bin selection algorithm}
+\begin{definition}[]\label{}
+Let $h(f;\theta)$ be a complex valued signal. Then the \textit{post-Newtonian ansatz} asserts that $\psi(f)\defn\text{arg}(h(f))$ takes the form
+\begin{equation}\label{}
+\psi(f;\theta) \defn \sum_i \alpha_i(\theta) f^{\gamma_i},
+\end{equation}
+where $\gamma \defn (-5/3, -2/3, 1, 5/3, 7/3)$.
+\end{definition}
+We now have that
+\begin{align*}
+\Psi(f;\theta) &\defn \psi(f;\theta) - \psi(f; \theta_0) \\
+&= \sum_i \brk[r]1{\alpha_i (\theta) - \alpha_i(\theta_0)} f^{\gamma_i} \\
+&= \sum_i \delta \alpha_i (\theta) f^{\gamma_i}
+\end{align*}
+The heterodyne approximation is valid if $\Psi$ varies slowly within a bin, which translates to a constraint on the $\delta \alpha_i$ terms. This motivates the following definition:
+\begin{proposition}[]\label{}
+
+Suppose that the parameters $\theta$ are restricted to
+\begin{equation}\label{eq:bound-params}
+\Theta \defn \brk[c]1{\theta \in \chi : \forall i \; \abs{\delta \alpha_i(\theta)} \le 2 \pi \chi f_{*,i}^{-\gamma_i}},
+\end{equation}
+where
+\begin{equation}\label{}
+f_{*,i} \defn
+\begin{cases}
+f_{\text{max}} & \text{if } i: \;\gamma_i > 0 \\
+f_{\text{min}} & \text{else}.
+\end{cases}
+\end{equation}
+Then the differential phase change over the interval $[f_-, f_+]$ obeys the following bound:
+%change in bin $b \in \brk[c]{1, 2, \ldots, m}$ is bounded by
+\begin{equation}\label{}
+\abs{\Psi(f_+;\theta) - \Psi(f_-;\theta)} \le 2 \pi \chi \sum_i \abs2{\brk[r]2{\frac{f_+}{f_{*,i}}}^{\gamma_i} - \brk[r]2{\frac{f_-}{f_{*,i}}}^{\gamma_i}}.
+\end{equation}
+\end{proposition}
+% \tag*{\llap{(triangle inequality)}}
+\begin{proof}
+\begin{align*}
+\abs{\Psi(f_+;\theta) - \Psi(f_-;\theta)} &= \abs2{\sum_i \delta \alpha_i(\theta) \brk[s]1{f_+^{\gamma_i} - f_-^{\gamma_i}}} \\
+&\le \sum_i \abs{\delta \alpha_i(\theta)} \abs{f_+^{\gamma_i} - f_-^{\gamma_i}} \pushright{(\text{triangle inequality})} \\
+&\le 2 \pi \chi \sum_i \abs2{\brk[r]2{\frac{f_+}{f_{*,i}}}^{\gamma_i} - \brk[r]2{\frac{f_-}{f_{*,i}}}^{\gamma_i}}.
+\end{align*}
+\end{proof}
+
+
+
+
+
+% Suppose that the parameters $\theta$ are restricted to
+% \begin{equation}\label{eq:bound-params}
+% \Theta \defn \brk[c]1{\theta \in \chi : \forall i \; \abs{\delta \alpha_i(\theta)} \le 2 \pi \chi f_{*,i}^{-\gamma_i}},
+% \end{equation}
+% where
+% \begin{equation}\label{}
+% f_{*,i} \defn
+% \begin{cases}
+% f_+ & \text{if } \gamma_i > 0 \\
+% f_- & \text{else}.
+% \end{cases}
+% \end{equation}
+% Then the differential phase change over the interval $[f_-, f_+]$ is bounded by
+% %change in bin $b \in \brk[c]{1, 2, \ldots, m}$ is bounded by
+% \begin{equation}\label{}
+% \abs{\Psi(f_+;\theta) - \Psi(f_-;\theta)} \le 2 \pi \chi \sum_i \brk[s]2{1 - \brk[r]2{\frac{f_-}{f_+}}^{\abs{\gamma_i}}}.
+% \end{equation}
+% \end{proposition}
+% % \tag*{\llap{(triangle inequality)}}
+% \begin{proof}
+% \begin{align*}
+% \abs{\Psi(f_+;\theta) - \Psi(f_-;\theta)} &= \abs2{\sum_i \delta \alpha_i(\theta) \brk[s]1{f_+^{\gamma_i} - f_-^{\gamma_i}}} \\
+% &\le \sum_i \abs{\delta \alpha_i(\theta)} \abs{f_+^{\gamma_i} - f_-^{\gamma_i}} \pushright{(\text{triangle inequality})} \\
+% &\le 2 \pi \chi \sum_i \abs2{\brk[r]2{\frac{f_+}{f_{*,i}}}^{\gamma_i} - \brk[r]2{\frac{f_-}{f_{*,i}}}^{\gamma_i}} \\
+% &= 2 \pi \chi \brk[s]3{\sum_{i:\gamma_i>0} \abs2{1 - \brk[r]2{\frac{f_-}{f_+}}^{\gamma_i}} + \sum_{i:\gamma_i<0} \abs2{\brk[r]2{\frac{f_+}{f_-}}^{\gamma_i} - 1}} \\
+% &= 2 \pi \chi \brk[s]3{\sum_{i:\gamma_i>0} \abs2{1 - \brk[r]2{\frac{f_-}{f_+}}^{\abs{\gamma_i}}} + \sum_{i:\gamma_i<0} \abs2{1-\brk[r]2{\frac{f_-}{f_+}}^{\abs{\gamma_i}}}} \\
+% &= 2 \pi \chi \sum_i \abs2{1 - \brk[r]2{\frac{f_-}{f_+}}^{\abs{\gamma_i}}} \\
+% &= 2 \pi \chi \sum_i \brk[s]2{1-\brk[r]2{\frac{f_-}{f_+}}^{\abs{\gamma_i}}}.
+% \end{align*}
+% \end{proof}

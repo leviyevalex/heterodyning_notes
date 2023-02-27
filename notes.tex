@@ -119,7 +119,7 @@ B_0^{(b)} &\defn 4 \sum_{i:f_i \in \text{bin} \; b} \frac{\abs{h(f_i;\theta_0)}^
 \end{align*}
 where in the second to last line we've used the fact that for $z_1, z_2 \in \com$, $\abs{z_1+z_2}^2 = \abs{z_1}^2 + \abs{z_2}^2 + 2 \re \brk[r]{z_1^* z_2}$, and in the last line we've ignored terms of $\order(\abs{f-f_-^{(b)}}^2)$.
 \end{proof}
-
+We now go a step further and derive heterodyned evaluation of the gradient of the potential, and the Fisher matrix.
 \begin{proposition}[]\label{}
 The terms we need to calculate for the derivative and Fisher may be approximated as follows:
 \begin{align*}
@@ -129,7 +129,22 @@ The terms we need to calculate for the derivative and Fisher may be approximated
 \end{align*}
 \end{proposition}
 \begin{proof}
+(i) Follows immediately from the previous result:
+\begin{align*}
+\brk[a]{h_{,j}(\theta), d} &= \brk[a]{h(\theta), d}_{,j} \\
+&\approx \sum_b \brk[s]1{A_0^{(b)} r_{0,j}^{(b)}(\theta)^* + A_1^{(b)} r_{1,j}^{(b)}(\theta)^*}.
+\end{align*}
+(ii) Similarly,
+\begin{align*}
+\brk[a]{h_{,j}(\theta), h(\theta)} &= 4 \sum_{i=1}^n \frac{h_{,j}(f_i;\theta)^* h(f;\theta)}{S(f_i)} \Delta f \\
+&= 4 \sum_{i=1}^n \frac{r_{,j}(f_i;\theta)^* h(f_i;\theta_0)^* r(f_i;\theta) h(f_i;\theta_0)}{S(f_i)} \Delta f \\
+&= 4 \sum_{i=1}^n \frac{\abs{h(f_i;\theta_0)}^2}{S(f_i)}  r_{,j}(f_i;\theta)^* r(f_i;\theta) \Delta f\\
+&\approx 4 \sum_b \sum_{i:f_i \in \text{bin } b}\frac{\abs{h(f_i;\theta_0)}^2}{S(f_i)}\Delta f \brk[s]!{r_{0,j}^{(b)}(\theta) + r_{1,j}^{(b)}(f_i-f_-^{(b)})}^* \brk[s]!{r_{0}^{(b)}(\theta) + r_{1}^{(b)}(f_i-f_-^{(b)})} \\
+&\approx \sum_b \brk[c]2{B_0^{(b)} r_{0,j}^{(b)}(\theta)^* r_0^{(b)}(\theta) + B_1^{(b)} \brk[s]!{r_{0,j}^{(b)}(\theta)^* r_1^{(b)}(\theta) + r_{1,j}^{(b)}(\theta)^* r_0^{(b)}(\theta)}},
+\end{align*}
+where in the last line we've ignored terms of $\order(\abs{f_i - f_-^{(b)}}^2)$.
 
+(iii) Follows a similar proof to (ii). Answer may be read off by replacing $r_0^{(b)}, r_1^{(b)} \leftarrow r_{0,k}^{(b)}, r_{1,k}^{(b)}$ in the rightmost square brackets of the second to last line.
 \end{proof}
 
 
@@ -158,7 +173,7 @@ where
 \begin{equation}\label{}
 f_{*,i} \defn
 \begin{cases}
-f_{\text{max}} & \text{if } i: \;\gamma_i > 0 \\
+f_{\text{max}} & \text{if } \gamma_i > 0 \\
 f_{\text{min}} & \text{else}.
 \end{cases}
 \end{equation}

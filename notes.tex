@@ -2,7 +2,7 @@
 
 \section{Relative binning}
 \subsection{Motivation}
-In GW data analysis, we work with a complex inner product space $(\com^n, \brk[a]{\cdot,\cdot}_{\text{GW}})$, where for $h,g \in \com^n$, $\brk[a]{\cdot,\cdot}_{\text{GW}}:\com^n \times \com^n \to \com$ is a sesquilinear inner product defined by:
+In GW data analysis, we work with a complex inner product space $(\com^n, \brk[a]{\cdot,\cdot}_{\text{GW}})$ representing time-series signals, where for $h,g \in \com^n$, $\brk[a]{\cdot,\cdot}_{\text{GW}}:\com^n \times \com^n \to \com$ is a sesquilinear inner product defined by:
 \begin{equation}\label{eq:gw-inner}
 \brk[a]{h,g}_{\text{GW}} \defn 4 \sum_{i=1}^n \frac{\tilde{h}(f_i)^* \tilde{g}(f_i)}{S(f_i)} \Delta f,
 \end{equation}
@@ -15,18 +15,21 @@ Recall that a sesquilinear inner product satisfies the following three axioms:
   % \item $\brk[a]{h,h} \gt 0$ and $\brk[a]{h,h} = 0 \iff h = 0_{\com^n}$. \hfill{(postive definiteness)}
 \end{itemize}
 \begin{remark}[]\label{}
-In physics it is typical to require linearity in the second argument. Hence we suggest sticking to this convention.
+We use the same linearity convention as in quantum-mechanics for consistancy.
 \end{remark}
-The likelihood is defined in terms of the inner product by
+\begin{remark}[]\label{}
+If one works immediately with frequency-domain waveforms, the definition is the same with the exception that the DFT is not applied.
+\end{remark}
+%
+The likelihood is defined in terms of this inner product by
 \begin{equation}\label{}
 \like(\theta) \defn e^{-\frac{1}{2} \re \brk[a]1{h(\cdot ; \theta) - d(\cdot),h(\cdot ; \theta) - d(\cdot)}_{\text{GW}}},
 \end{equation}
 where $d \in \com^n$ is the detector strain, and $h$ is a waveform model parameterized by $\theta$ (e.g, IMRPhenomD).
-Using the linearity and conjugate symmetry of the inner product, we may show that\footnote{We use the notation $h(\cdot, \theta)$ to indicate a $\com^n$ vector paramerized by $\theta$.
+Using the linearity of the inner product, we may show that\footnote{We use the notation $h(\cdot, \theta)$ to indicate a $\com^n$ vector paramerized by $\theta$.
 In the following, we suppress the first slot which indexes the vector when convenient.}
 \begin{align*}\label{}
--\ln \like (\theta) &= \frac{1}{2} \re \brk[a]1{h(\theta) - d,h(\theta) - d}_{\text{GW}} \\
-&= \frac{1}{2}\overbrace{\brk[a]{h(\theta), h(\theta)}_{\text{GW}}}^{(a)} - \re \overbrace{\brk[a]{h(\theta), d}_{\text{GW}}}^{(b)} + \frac{1}{2}\overbrace{\brk[a]{d, d}_{\text{GW}}}^{\text(c)}.
+-\ln \like (\theta) &= \frac{1}{2} \re \brk[a]1{h(\theta) - d,h(\theta) - d}_{\text{GW}} = \frac{1}{2}\overbrace{\brk[a]{h(\theta), h(\theta)}_{\text{GW}}}^{(a)} - \re \overbrace{\brk[a]{h(\theta), d}_{\text{GW}}}^{(b)} + \frac{1}{2}\overbrace{\brk[a]{d, d}_{\text{GW}}}^{\text(c)}.
 \end{align*}
 Hence, for every $\like(\theta)$ evaluation, we must evaluate $(a)$ and $(b)$, which require $\order(n)$ evaluations of the waveform.
 Note that $(c)$ can be precomputed once and stored.
@@ -58,10 +61,10 @@ This assumption is therefore usually justified in retrospect by numerical experi
 
 In \cref{sec:bin-algorithm}, we will describe a scheme to construct a substantially sparser grid (compared to the original one) to automatically resolve $r$.
 
-
-
-
-If this condition holds, then one may efficiently compress the real and imaginary parts of $r$ with a \textit{linear spline}.
+Note that a real slowly varying function can be efficiently approximated with a linear spline.
+This idea generalizes to the complex case in a straightforward manner.
+Namely, a linear spline of a complex function is defined as the linear spline of the real and complex parts of the function individually.
+We use the following convention
 % More complex version suggested in the paper
 % \begin{definition}[]\label{}
 % Let $r:[\fmin,\fmax] \to \reals$, and consider the cover $[\fmin, \fmax] = \cup_{i=1}^{m-1}[f_-^{(i)}, f_+^{(i)}) \cup [f_-^{(m)}, f^{(m)}_+]$, where $f_+^{(i)}=f_-^{(i+1)}$ for every $i \in \brk[c]{1, \ldots, m-1}$, with $f_-^{(1)}=\fmin$ and $ f_+^{(m)}=\fmax$. Then the \textit{linear spline approximation} of $r$ is given by
@@ -90,11 +93,11 @@ r_1^{(b)}(\theta) &\defn \frac{r(f_+^{(b)};\theta) - r(f_-^{(b)}; \theta)}{f_+^{
 \end{definition}
 
 
-
+This yields the following result
 %
 \begin{proposition}[]\label{}
-Suppose $r(f;\theta)$ is successfully heterodyned with fiducial parameters $\theta_0$.
-Then with a first order spline the following approximations hold
+Let $r(f;\theta)$ be the heterodyne function with fiducial parameters $\theta_0$.
+Then under a first order spline, the following approximations hold
 \begin{align*}
 \brk[a]{h(\cdot, \theta), d(\cdot)} &\approx \sum_b \brk[s]1{A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*}, \\
 % \brk[a]{d(\cdot), h(\cdot, \theta)} &\approx \sum_b \brk[s]1{A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*}, \\
@@ -128,26 +131,30 @@ B_0^{(b)} &\defn 4 \sum_{i:f_i \in \text{bin} \; b} \frac{\abs{h(f_i;\theta_0)}^
 \end{align*}
 where in the second to last line we've used the fact that for $z_1, z_2 \in \com$, $\abs{z_1+z_2}^2 = \abs{z_1}^2 + \abs{z_2}^2 + 2 \re \brk[r]{z_1^* z_2}$, and in the last line we've ignored terms of $\order(\abs{f-f_-^{(b)}}^2)$.
 \end{proof}
-
+The computation savings appear if we can argue that a subgrid with $b \ll n$ may be chosen which does not generate significant error.
 \subsection{Heterodyning the gradient and Fisher}
-We may also investigate whether whether heterodyning produces accurate gradient and Fisher matrix evaluations.
-The expressions for this are given by
+We may also investigate whether heterodyning produces accurate gradient and Fisher matrix evaluations.
+\subsubsection{Review}
+The first derivative of the potential is given by
 \begin{align*}
 - \ln \like_{,i}(\theta) &= \re \brk[a]{h_{,i}(\cdot, \theta), h(\cdot, \theta)} - \re \brk[a]{h_{,i}(\cdot, \theta),d(\cdot)} \pushright{\text{(heterodyne)}} \\
 &= \re \brk[a]{h_{,i}(\cdot, \theta), h(\cdot, \theta)-d(\cdot)}, \pushright{\text(standard)}
 \end{align*}
-and
+and the second derivative of the potential is approximately
 \begin{align*}
 - \ln \like_{,ij}(\theta) &= \re \brk[a]{h_{,ij}(\cdot, \theta), h(\cdot,\theta) - d(\cdot)} + \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)} \\
-&\approx  \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)}.
+&\approx  \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)} \\
+&:= \Gamma_{ij}(\theta),
 \end{align*}
-We define
-\begin{equation}\label{eq:fisher-mat}
-\Gamma_{ij}(\theta) \defn \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)}
-\end{equation}
-as the \textit{Fisher information matrix}.
+where we call the matrix field $\Gamma_{ij}(\theta)$ the \textit{Fisher information matrix}.
+\begin{remark}[]\label{}
+In certain literature, $\Gamma_{ij}(\theta^*)$ is called the Fisher information, where $\theta^*$ is the MAP point. Here, we prefer defining it as a matrix field.
+\end{remark}
+% \begin{equation}\label{eq:fisher-mat}
+%  \defn \re \brk[a]{h_{,i}(\cdot,\theta), h_{,j}(\cdot, \theta)}
+% \end{equation}
 From the previous derivation, we see that the Fisher matrix acts as a surrogate for the Hessian of the potential.
-In fact, we may use it as a replacement in Newton optimization procedures due to the following
+In fact, we may use it as a replacement in Newton based descent procedures due to the following
 \begin{proposition}[]\label{}
 The Fisher information matrix $\Gamma$ is positive-semi definite.
 \end{proposition}
@@ -163,16 +170,17 @@ Let $h(f;\theta) = h_1(f;\theta) + i h_2(f;\theta)$. Then by definition, we have
 Since $S>0$ and both matricies in the numerator as PSD, so too is the sum.
 \end{proof}
 
-
+\subsubsection{Heterodyne for derivatives}
 Recall that $h(f; \theta) = A(f; \theta) e^{i \psi(f;\theta)}$, and observe that
 \begin{align*}
 r_{,j}(f;\theta) &\defn \frac{h_{,j}(f;\theta)}{h(f;\theta_0)} \\
 &= \frac{A_{,j}(f;\theta) e^{i \psi(f;\theta)} + i \psi_{,j}(f;\theta) A(f;\theta) e^{i \psi(f;\theta)}}{A(f;\theta_0) e^{i \psi(f;\theta_0)}} \\
-&= \frac{A_{,j}(f;\theta)}{A(f;\theta_0)} e^{i \brk[r]{\psi(f;\theta) - \psi(f;\theta_0)}} + \frac{\psi_{,j}(f;\theta)A(f;\theta)}{A(f;\theta_0)}e^{i \brk[r]{\psi(f;\theta) - \psi(f;\theta_0) + \frac{\pi}{2}}}, \\
+&= \frac{A_{,j}(f;\theta)}{A(f;\theta_0)} e^{i \brk[r]{\psi(f;\theta) - \psi(f;\theta_0)}} + \frac{\psi_{,j}(f;\theta)A(f;\theta)}{A(f;\theta_0)}e^{i \brk[r]{\psi(f;\theta) - \psi(f;\theta_0) + \frac{\pi}{2}}}. \\
 % &= \alpha_j(f;\theta) + i \beta_j(f;\theta).
 \end{align*}
-and should also be compatible with our binning scheme.
-We now go a step further and derive heterodyned evaluation of the gradient of the potential, and the Fisher matrix.
+At this point, one must take care to ensure that the envolopes of both phasors are slowly varying functions of $f$. For the moment we take this for granted, and intend to demonstrate the veracity of this assumption via numerical experimentation.
+
+We now have the following result analogous to the zeroth order case
 \begin{proposition}[]\label{}
 The terms we need to calculate for the derivative and Fisher may be approximated as follows:
 \begin{align*}
@@ -184,8 +192,8 @@ The terms we need to calculate for the derivative and Fisher may be approximated
 \begin{proof}
 (i) Follows immediately from the previous result:
 \begin{align*}
-\brk[a]{h_{,j}(\theta), d} &= \brk[a]{h(\theta), d}_{,j} \\
-&\approx \sum_b \brk[s]1{A_0^{(b)} r_{0,j}^{(b)}(\theta)^* + A_1^{(b)} r_{1,j}^{(b)}(\theta)^*}.
+\brk[a]{h_{,j}(\theta), d} &= \brk[a]{h(\theta), d}_{,j}
+\approx \sum_b \brk[s]1{A_0^{(b)} r_{0,j}^{(b)}(\theta)^* + A_1^{(b)} r_{1,j}^{(b)}(\theta)^*}.
 \end{align*}
 (ii) Similarly,
 \begin{align*}
@@ -198,39 +206,9 @@ The terms we need to calculate for the derivative and Fisher may be approximated
 \end{align*}
 where in the last line we've ignored terms of $\order(\abs{f_i - f_-^{(b)}}^2)$.
 
-(iii) Follows a similar proof to (ii). Answer may be read off by replacing $r_0^{(b)}, r_1^{(b)} \leftarrow r_{0,k}^{(b)}, r_{1,k}^{(b)}$ in the rightmost square brackets of the second to last line.
+(iii) Follows a similar proof to (ii). Alternatively, one may read off the answer by replacing $r_0^{(b)}, r_1^{(b)} \leftarrow r_{0,k}^{(b)}, r_{1,k}^{(b)}$ in the rightmost square brackets of the second to last line.
 \end{proof}
-\subsection{Reduced variance scheme}
-\cite{Cornish_2021} suggests using the following
-\begin{proposition}[]\label{}
-The following expression holds:
-\begin{equation}\label{}
-- \ln \like(\theta) = -\ln \like(\theta_0) + \frac{1}{2} \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta) - h(\cdot,\theta_0)} + \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta_0) - d(\cdot)}.
-\end{equation}
-\end{proposition}
-\begin{proof}
-The result follows directly from the definition
-\begin{align*}
--\ln \like(\theta) &\defn \frac{1}{2} \re \brk[a]{h(\cdot,\theta) - d(\cdot), h(\cdot,\theta)-d(\cdot)} \\
-&= \frac{1}{2} \re \brk[a]1{\brk[s]!{h(\cdot,\theta) - h(\cdot,\theta_0)} + \brk[s]!{h(\cdot, \theta_0) - d(\cdot)}, \brk[s]!{h(\cdot, \theta) - h(\cdot,\theta_0)} + \brk[s]!{h(\cdot,\theta_0) - d(\cdot)}} \\
-&= \frac{1}{2} \brk[s]2{\re \brk[a]1{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta) - h(\cdot,\theta_0)} + 2 \re \brk[a]1{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta_0) - d(\cdot)}} - \ln \like (\theta_0) \\
-&= -\ln \like(\theta_0) + \frac{1}{2} \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta) - h(\cdot,\theta_0)} + \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta_0) - d(\cdot)}.
-\end{align*}
-\end{proof}
-This appears to be a good expression to approximate the likelihood from because both integrals now have small values, and hence the total error is smaller (i.e, the variance of the overall estimate should be improved).
-This idea can be extended to the idea of derivatives as well
-\begin{corollary}[]\label{}
-The derivative may be expressed as
-\begin{equation}\label{}
-- \ln \like(\theta)_{,j} = \re \brk[a]{h_{,j}(\cdot,\theta), h(\cdot,\theta) - h(\cdot, \theta_0)} + \re \brk[a]{h_{,j}(\cdot,\theta), h(\cdot,\theta_0) - d(\cdot)}.
-\end{equation}
-\end{corollary}
-\begin{proof}
-Follows immediately from the previous result.
-\end{proof}
-Observe that this is the end of the line.
-The Fisher matrix does not benefit from a reduced variance form following this line of reasoning.
-Since we are currently using a zero-noise injection, the second term is exactly zero, and hence all we need to focus on in the first term.
+
 
 \section{Bin selection algorithm}\label{sec:bin-algorithm}
 \begin{definition}[]\label{}

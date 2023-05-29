@@ -1,13 +1,14 @@
 # Fdb version 3
-["bibtex main"] 1685370580 "main.aux" "main.bbl" "main" 1685370586
+["bibtex main"] 1685380589 "main.aux" "main.bbl" "main" 1685380727
   "c:/texlive/2020/texmf-dist/bibtex/bst/amscls/amsplain.bst" 1602525131 25798 9b3546f2f237ee0ce4724eed95f954f4 ""
   "c:/texlive/2020/texmf-dist/bibtex/bst/base/apalike.bst" 1602525540 24635 604dafcc79f521a11ea73e506e1fbd98 ""
-  "main.aux" 1685370584 3754 83a9ffba9b0b9e7116411ceae84d97a6 "pdflatex"
+  "main.aux" 1685380724 4077 357a95d6d667caed7efcb60d7b3dda56 "pdflatex"
   "ref.bib" 1678890050 422 76705d554fe030999fe47deb41f1aaed ""
   (generated)
-  "main.bbl"
   "main.blg"
-["pdflatex"] 1685370581 "main.tex" "main.pdf" "main" 1685370586
+  "main.bbl"
+["pdflatex"] 1685380721 "main.tex" "main.pdf" "main" 1685380727
+  "app.tex" 1685380581 2244 0aceea341dc59703a993aea5d5f13f31 ""
   "arxiv.sty" 1670701306 7641 73d629a9ecdf79da8148f7f0df8c6662 ""
   "c:/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc" 1602526378 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "c:/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1602526778 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -298,13 +299,13 @@
   "c:/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1602530321 4851253 a533a4526d7bf069c355e34a42d65ce7 ""
   "c:/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1602530616 2432407 c131644e380b5148c837493f7a4eaa6c ""
   "c:/texlive/2020/texmf.cnf" 1602530285 673 4ae7b2f49cee444c5343a45b5d0f169c ""
-  "main.aux" 1685370584 3754 83a9ffba9b0b9e7116411ceae84d97a6 "pdflatex"
-  "main.bbl" 1685370581 240 c0fb0faf7b0bde8b4d633d263b649fed "bibtex main"
-  "main.out" 1685370584 399 76b0b4a2c6b5475db084ef83a702b7e1 "pdflatex"
-  "main.tex" 1678890081 9337 4e279bf53bdb6b1bea3f2a166f757dcf ""
-  "notes.tex" 1685370573 20520 8a191e9d05137b233fdde51309c580f0 ""
+  "main.aux" 1685380724 4077 357a95d6d667caed7efcb60d7b3dda56 "pdflatex"
+  "main.bbl" 1685380590 240 c0fb0faf7b0bde8b4d633d263b649fed "bibtex main"
+  "main.out" 1685380724 536 cdbd333623c2152749029f81b8a04733 "pdflatex"
+  "main.tex" 1685380720 9441 491d6fda1a8269129c9cdcba66e81aa6 ""
+  "notes.tex" 1685380457 19358 54a54195ee6441085ef6d05a18f644c2 ""
   (generated)
   "main.out"
+  "main.log"
   "main.pdf"
   "main.aux"
-  "main.log"

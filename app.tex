@@ -1,0 +1,32 @@
+%!TEX root = main.tex
+\section{Reduced variance scheme}
+\cite{Cornish_2021} suggests using the following
+\begin{proposition}[]\label{}
+The following expression holds:
+\begin{equation}\label{}
+- \ln \like(\theta) = -\ln \like(\theta_0) + \frac{1}{2} \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta) - h(\cdot,\theta_0)} + \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta_0) - d(\cdot)}.
+\end{equation}
+\end{proposition}
+\begin{proof}
+The result follows directly from the definition
+\begin{align*}
+-\ln \like(\theta) &\defn \frac{1}{2} \re \brk[a]{h(\cdot,\theta) - d(\cdot), h(\cdot,\theta)-d(\cdot)} \\
+&= \frac{1}{2} \re \brk[a]1{\brk[s]!{h(\cdot,\theta) - h(\cdot,\theta_0)} + \brk[s]!{h(\cdot, \theta_0) - d(\cdot)}, \brk[s]!{h(\cdot, \theta) - h(\cdot,\theta_0)} + \brk[s]!{h(\cdot,\theta_0) - d(\cdot)}} \\
+&= \frac{1}{2} \brk[s]2{\re \brk[a]1{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta) - h(\cdot,\theta_0)} + 2 \re \brk[a]1{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta_0) - d(\cdot)}} - \ln \like (\theta_0) \\
+&= -\ln \like(\theta_0) + \frac{1}{2} \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta) - h(\cdot,\theta_0)} + \re \brk[a]{h(\cdot,\theta) - h(\cdot,\theta_0), h(\cdot,\theta_0) - d(\cdot)}.
+\end{align*}
+\end{proof}
+This appears to be a good expression to approximate the likelihood from because both integrals now have small values, and hence the total error is smaller (i.e, the variance of the overall estimate should be improved).
+This idea can be extended to the idea of derivatives as well
+\begin{corollary}[]\label{}
+The derivative may be expressed as
+\begin{equation}\label{}
+- \ln \like(\theta)_{,j} = \re \brk[a]{h_{,j}(\cdot,\theta), h(\cdot,\theta) - h(\cdot, \theta_0)} + \re \brk[a]{h_{,j}(\cdot,\theta), h(\cdot,\theta_0) - d(\cdot)}.
+\end{equation}
+\end{corollary}
+\begin{proof}
+Follows immediately from the previous result.
+\end{proof}
+Observe that this is the end of the line.
+The Fisher matrix does not benefit from a reduced variance form following this line of reasoning.
+Since we are currently using a zero-noise injection, the second term is exactly zero, and hence all we need to focus on in the first term.

@@ -256,6 +256,25 @@ Then the differential phase change over the interval $[f_-, f_+]$ obeys the foll
 
 
 
+% TESTING
+% \begin{align*}
+% r(f;\theta) &= \frac{h(f;\theta)}{h(f; \theta_0)} \\
+%             &= \frac{A}{A_0} e^{i \left(\Psi(f;\theta) - \Psi(f;\theta_0)\right)}.
+% \end{align*}
+%
+% \begin{proposition}[]\label{}
+% Let $r(f;\theta)$ be the heterodyne function with fiducial parameters $\theta_0$.
+% Then under a first order spline, the following approximations hold:
+% \begin{align*}
+% \left[h(\cdot, \theta), d(\cdot)\right] &\approx \sum_b \left[A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*\right], \\
+% % \left[d(\cdot), h(\cdot, \theta)\right] &\approx \sum_b \left[A_0^{(b)} r_0^{(b)}(\theta)^* + A_1^{(b)} r_1^{(b)}(\theta)^*\right], \\
+% \left[h(\cdot,\theta), h(\cdot,\theta)\right] &\approx \sum_b \left[B_0^{(b)} \left|r_0^{(b)}(\theta)\right|^2 + 2 B_1^{(b)} \re \left(r_0^{(b)}(\theta)^* r_1^{(b)}(\theta)\right)\right],
+% \end{align*}
+% where for every bin $b$, the coefficients $A_0^{(b)}, A_1^{(b)} \in \mathbb{C}$ and $B_0^{(b)}, B_1^{(b)} \in \mathbb{R}$ are defined by
+% \begin{align*}
+% A_0^{(b)} &\defn 4 \sum_{i: f_i \in \text{bin} \; b} \frac{ h(f_i;\theta_0)^* d(f_i) }{S(f_i)} \Delta f, & A_1^{(b)} &= 4 \sum_{i:f_i \in \text{bin} \; b} \frac{ h(f_i;\theta_0)^*d(f_i) (f_i - f_-^{(b)})}{S(f_i)} \Delta f,
+% \end{align*}
+% \end{proposition}
 
 
 % Suppose that the parameters $\theta$ are restricted to
